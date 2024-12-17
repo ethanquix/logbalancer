@@ -20,12 +20,18 @@ func TestNew(t *testing.T) {
 	//require.NoError(t, err)
 	//
 	//// slack
-	//sl := lbdestinations.NewSlack("")
+	sl := lbdestinations.NewSlack("")
 
-	lb := New(WithPassword("password"), WithPort(8011))
+	lb := New(WithPassword("password"), WithPort("8011"))
 	//lb.On("/", tg.SendTo(6665765455))
 	//lb.On("/", sl.SendTo("jarvis"))
 	lb.On("/", lbdestinations.StdoutSend)
+
+	lb.On("/", lbdestinations.FilterBySeverity(lbdestinations.SeverityFilter{
+		WARN:  sl.SendTo("warning"),
+		ERROR: sl.SendTo("error"),
+		DEBUG: lbdestinations.Join(sl.SendTo("debug"), lbdestinations.StdoutSend),
+	}))
 	// pretend connect
 	go func() {
 		time.Sleep(1 * time.Second)
