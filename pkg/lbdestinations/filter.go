@@ -20,19 +20,33 @@ func FilterBySeverity(filter SeverityFilter) func(incomingLog *pb_logs.RuntimeLo
 	return func(incomingLog *pb_logs.RuntimeLogs) error {
 		switch incomingLog.Severity {
 		case pb_logs.Severity_SEVERITY_UNSPECIFIED:
-			return filter.UNSPECIFIED(incomingLog)
+			if filter.UNSPECIFIED != nil {
+				return filter.UNSPECIFIED(incomingLog)
+			}
 		case pb_logs.Severity_SEVERITY_DEBUG:
-			return filter.DEBUG(incomingLog)
+			if filter.DEBUG != nil {
+				return filter.DEBUG(incomingLog)
+			}
 		case pb_logs.Severity_SEVERITY_INFO:
-			return filter.INFO(incomingLog)
+			if filter.INFO != nil {
+				return filter.INFO(incomingLog)
+			}
 		case pb_logs.Severity_SEVERITY_WARN:
-			return filter.WARN(incomingLog)
+			if filter.WARN != nil {
+				return filter.WARN(incomingLog)
+			}
 		case pb_logs.Severity_SEVERITY_ERROR:
-			return filter.ERROR(incomingLog)
+			if filter.ERROR != nil {
+				return filter.ERROR(incomingLog)
+			}
 		case pb_logs.Severity_SEVERITY_CRITICAL:
-			return filter.CRITICAL(incomingLog)
+			if filter.CRITICAL != nil {
+				return filter.CRITICAL(incomingLog)
+			}
 		case pb_logs.Severity_SEVERITY_SUCCESS:
-			return filter.SUCCESS(incomingLog)
+			if filter.SUCCESS != nil {
+				return filter.SUCCESS(incomingLog)
+			}
 		}
 		return nil
 	}

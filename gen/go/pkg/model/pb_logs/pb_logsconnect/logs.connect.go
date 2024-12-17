@@ -8,7 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	pb_logs "github.com/ethanquix/logbalancer/gen/go/pkg/model/pb_logs"
+	"github.com/ethanquix/logbalancer/gen/go/pkg/model/pb_logs"
 	http "net/http"
 	strings "strings"
 )
