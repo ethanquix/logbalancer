@@ -1,0 +1,22 @@
+version: v2
+plugins:
+  # Go
+  - protoc_builtin: go
+    out: gen/go
+    opt: paths=source_relative
+
+  # Python
+  - protoc_builtin: python
+    out: gen/python
+    opt: pyi_out=gen/python
+
+  # Connect [Golang]
+  - local: protoc-gen-connect-go
+    out: gen/go
+    opt: paths=source_relative
+
+  # Tools: Typescript
+  - local: protoc-gen-es
+    out: gen/tsx
+    include_imports: true
+    opt: target=ts

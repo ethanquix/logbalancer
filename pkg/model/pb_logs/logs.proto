@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package logbalancer.logs.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/ethanquix/logbalancer/gen/go/pkg/model/pb_logs";
+
+enum Severity {
+  SEVERITY_UNSPECIFIED = 0;
+  SEVERITY_DEBUG = 1;
+  SEVERITY_INFO  = 2;
+  SEVERITY_WARN  = 3;
+  SEVERITY_ERROR = 4;
+  SEVERITY_CRITICAL  = 5;
+  SEVERITY_SUCCESS = 6;
+}
+
+message RuntimeLogs {
+  google.protobuf.Timestamp log_date = 1;
+  Severity severity = 2;
+  string source = 3;
+  string message = 4;
+  map<string, string> context = 5;
+  string path = 7;
+  string details = 8;
+  map<string, string> tags = 9;
+}
+
+// RPC
+message SendResponse {}
+message BatchSendRequest {
+  repeated RuntimeLogs logs = 1;
+}
+message BatchSendResponse {}
+
+service RpcLogs {
+  rpc Send(RuntimeLogs) returns (SendResponse) {}
+  rpc BatchSend(BatchSendRequest) returns (BatchSendResponse) {}
+}
