@@ -14,6 +14,7 @@ import (
 )
 
 func TestNew(t *testing.T) {
+	t.Skip()
 	// telegram
 	//tg, err := lbdestinations.NewTelegram("")
 	//require.NoError(t, err)

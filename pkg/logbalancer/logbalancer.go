@@ -15,7 +15,7 @@ type logBalancerTarget struct {
 }
 
 type LogBalancer struct {
-	port          int
+	port          string
 	password      string
 	middleware    http.HandlerFunc
 	customHandles []func(*echo.Echo)
@@ -30,7 +30,7 @@ func WithPassword(password string) Opts {
 	}
 }
 
-func WithPort(port int) Opts {
+func WithPort(port string) Opts {
 	return func(balancer *LogBalancer) {
 		balancer.port = port
 	}
@@ -97,8 +97,8 @@ func (lb *LogBalancer) Run() error {
 		handle(e)
 	}
 
-	if lb.port != 0 {
-		return e.Start(fmt.Sprintf(":%d", lb.port))
+	if lb.port != "" {
+		return e.Start(fmt.Sprintf(":%s", lb.port))
 	}
-	return e.Start(":8000")
+	return e.Start(":8080")
 }
