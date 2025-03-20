@@ -15,9 +15,10 @@ type Slack struct {
 	client *slack.Client
 }
 
-func NewSlack(token string) *Slack {
+func NewSlack(token string) (*Slack, error) {
 	client := slack.New(token)
-	return &Slack{client: client}
+	_, err := client.AuthTest()
+	return &Slack{client: client}, err
 }
 
 func (s *Slack) SendTo(channel string) func(incomingLog *pb_logs.RuntimeLogs) error {

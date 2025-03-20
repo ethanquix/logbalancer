@@ -22,7 +22,7 @@ func TestNew(t *testing.T) {
 	//require.NoError(t, err)
 	//
 	//// slack
-	sl := lbdestinations.NewSlack("")
+	sl, _ := lbdestinations.NewSlack("")
 
 	lb := New(WithPassword("password"), WithPort("8011"))
 	//lb.On("/", tg.SendTo(6665765455))
