@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ethanquix/logbalancer/gen/go/pkg/model/pb_logs"
+	"github.com/ethanquix/logbalancer/pkg/utils"
 	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -45,7 +46,7 @@ func (t *Telegram) Send(to int64, incomingLog *pb_logs.RuntimeLogs) error {
 
 // FormatSeverity converts Severity enum to string
 func FormatSeverity(s pb_logs.Severity) string {
-	return strings.Title(strings.ToLower(s.String()))
+	return strings.ToUpper(utils.SeverityToString(s))
 }
 
 // FormatRuntimeLogsToHTML formats RuntimeLogs to compact HTML suitable for Telegram
