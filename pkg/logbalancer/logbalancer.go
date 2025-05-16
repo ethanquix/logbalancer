@@ -92,6 +92,10 @@ func (lb *LogBalancer) Run() error {
 	})
 	e.Any("/connect/*", echo.WrapHandler(http.StripPrefix("/connect", HandleConnect(lb))))
 
+	e.Any("/", echo.HandlerFunc(func(c echo.Context) error {
+		return c.String(http.StatusOK, ":)")
+	}))
+
 	// Custom
 	for _, handle := range lb.customHandles {
 		handle(e)
