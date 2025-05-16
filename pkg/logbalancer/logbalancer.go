@@ -77,7 +77,7 @@ func (lb *LogBalancer) Run() error {
 				if header == lb.password {
 					return next(c)
 				} else {
-					return c.NoContent(http.StatusUnauthorized)
+					return c.String(http.StatusUnauthorized, "unauthorized :(")
 				}
 			}
 		})
