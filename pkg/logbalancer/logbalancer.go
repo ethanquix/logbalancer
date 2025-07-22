@@ -3,6 +3,7 @@ package logbalancer
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/ethanquix/logbalancer/gen/go/pkg/model/pb_logs"
 	"github.com/labstack/echo/v4"
@@ -10,8 +11,9 @@ import (
 )
 
 type logBalancerTarget struct {
-	fn   func(l *pb_logs.RuntimeLogs) error
-	path urlpath.Path
+	fn      func(l *pb_logs.RuntimeLogs) error
+	rawPath string
+	path    urlpath.Path
 }
 
 type LogBalancer struct {
@@ -20,6 +22,7 @@ type LogBalancer struct {
 	middleware    http.HandlerFunc
 	customHandles []func(*echo.Echo)
 	listeners     map[string][]logBalancerTarget
+	echoServer    *echo.Echo
 }
 
 type Opts func(*LogBalancer)
@@ -55,10 +58,14 @@ func New(options ...Opts) *LogBalancer {
 }
 
 func (lb *LogBalancer) On(path string, fn ...func(incomingLog *pb_logs.RuntimeLogs) error) *LogBalancer {
+	if strings.HasSuffix(path, "/") {
+		path += "*"
+	}
 	uPath := urlpath.New(path)
 	for _, f := range fn {
 		var target logBalancerTarget
 		target.path = uPath
+		target.rawPath = path
 		target.fn = f
 		lb.listeners[path] = append(lb.listeners[path], target)
 	}
@@ -68,6 +75,7 @@ func (lb *LogBalancer) On(path string, fn ...func(incomingLog *pb_logs.RuntimeLo
 func (lb *LogBalancer) Run() error {
 	// create server
 	e := echo.New()
+	lb.echoServer = e
 	e.HideBanner = true
 
 	if lb.password != "" {
@@ -77,7 +85,7 @@ func (lb *LogBalancer) Run() error {
 				if header == lb.password {
 					return next(c)
 				} else {
-					return c.String(http.StatusUnauthorized, "unauthorized :(")
+					return c.String(http.StatusUnauthorized, "unauthorized. Please provide a password in the Authorization header. Example: Authorization: password")
 				}
 			}
 		})
@@ -93,7 +101,7 @@ func (lb *LogBalancer) Run() error {
 	e.Any("/connect/*", echo.WrapHandler(http.StripPrefix("/connect", HandleConnect(lb))))
 
 	e.Any("/", echo.HandlerFunc(func(c echo.Context) error {
-		return c.String(http.StatusOK, ":)")
+		return c.String(http.StatusOK, "logbalancer is running. Try sending a log to /json or /proto. You can also send logs to /connect/ with the connect protocol")
 	}))
 
 	// Custom
@@ -105,4 +113,11 @@ func (lb *LogBalancer) Run() error {
 		return e.Start(fmt.Sprintf(":%s", lb.port))
 	}
 	return e.Start(":8080")
+}
+
+func (lb *LogBalancer) Stop() error {
+	if lb.echoServer == nil {
+		return fmt.Errorf("server was never started. Please call Run() first")
+	}
+	return lb.echoServer.Close()
 }

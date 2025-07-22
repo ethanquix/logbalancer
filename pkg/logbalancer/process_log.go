@@ -8,7 +8,7 @@ import (
 )
 
 func (lb *LogBalancer) HandleLog(incomingLog *pb_logs.RuntimeLogs) error {
-	// match with route
+	// == VALIDATION ==
 	if incomingLog == nil {
 		return fmt.Errorf("log is nil")
 	}
@@ -28,12 +28,17 @@ func (lb *LogBalancer) HandleLog(incomingLog *pb_logs.RuntimeLogs) error {
 		return fmt.Errorf("source is empty")
 	}
 
-	for path, targets := range lb.listeners {
+	// == MATCH ==
+
+	// TODO optimize this with a flat hashmap
+	for _, targets := range lb.listeners {
 		for _, t := range targets {
-			if _, isMatch := t.path.Match(incomingLog.Path); isMatch {
+			_, isMatch := t.path.Match(incomingLog.Path)
+			//fmt.Printf("incoming: %s, test: %s, isMatch: %v\n", incomingLog.Path, t.rawPath, isMatch)
+			if isMatch {
 				err := t.fn(incomingLog)
 				if err != nil {
-					log.Errorf("sending log for path %s: %v", path, err)
+					log.Errorf("sending log for path %s: %v", t.rawPath, err)
 				}
 			}
 		}
